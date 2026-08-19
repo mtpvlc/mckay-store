@@ -1,9 +1,15 @@
-import { config } from './config';
-
 /**
  * All prices are integers in minor units (euro cents). 49.99 EUR is 4999.
  * Never store or compute prices as floating point.
+ *
+ * This module is imported by client components, so it must NEVER import from
+ * ./config - that file reads server-only environment variables and throws in
+ * the browser. Locale and currency come from NEXT_PUBLIC_ vars (inlined at
+ * build time into both bundles) with EUR defaults matching .env.example.
  */
+
+const STORE_LOCALE = process.env.NEXT_PUBLIC_STORE_LOCALE ?? 'en-IE';
+const STORE_CURRENCY = process.env.NEXT_PUBLIC_STORE_CURRENCY ?? 'EUR';
 
 export class PriceParseError extends Error {
   constructor(input: string) {
@@ -34,8 +40,8 @@ export function parsePrice(input: string): number {
 }
 
 /** Formats cents for display, e.g. 50000 -> "€500.00". */
-export function formatPrice(cents: number, currency: string = config.storeCurrency): string {
-  return new Intl.NumberFormat(config.storeLocale, {
+export function formatPrice(cents: number, currency: string = STORE_CURRENCY): string {
+  return new Intl.NumberFormat(STORE_LOCALE, {
     style: 'currency',
     currency,
   }).format(cents / 100);
