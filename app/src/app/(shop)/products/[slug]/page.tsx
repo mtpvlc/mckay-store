@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPublicProductBySlug, listPublicSlugs } from '@/db/queries/products';
+import { getPublicProductBySlug } from '@/db/queries/products';
 import { formatPrice } from '@/lib/money';
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  return listPublicSlugs();
-}
+// Rendered per request. generateStaticParams was removed on purpose: it ran a
+// database query during `next build`, which fails on hosts where the database
+// is only reachable at runtime (e.g. Railway).
+export const dynamic = 'force-dynamic';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

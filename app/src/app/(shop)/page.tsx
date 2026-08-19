@@ -1,7 +1,9 @@
 import { listPublicProducts } from '@/db/queries/products';
 import { ProductCard } from '@/components/shop/ProductCard';
 
-export const revalidate = 60;
+// Rendered per request: the database is not reachable at build time on the
+// build host, and a live read keeps new products visible immediately.
+export const dynamic = 'force-dynamic';
 
 export default async function CataloguePage() {
   const products = await listPublicProducts();
