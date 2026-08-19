@@ -13,6 +13,18 @@ import {
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
+export const categories = pgTable(
+  'categories',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    slug: text('slug').notNull().unique(),
+    name: text('name').notNull().unique(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('categories_sort_idx').on(t.sortOrder, t.name)],
+);
+
 export const products = pgTable(
   'products',
   {
@@ -29,6 +41,9 @@ export const products = pgTable(
       .default(sql`ARRAY[]::text[]`),
     isActive: boolean('is_active').notNull().default(true),
     sortOrder: integer('sort_order').notNull().default(0),
+    // Nullable on purpose: deleting a category leaves its products
+    // uncategorised rather than deleting or blocking them.
+    categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
@@ -210,6 +225,7 @@ export type LineItem = {
   qty: number;
 };
 
+export type Category = typeof categories.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Admin = typeof admins.$inferSelect;

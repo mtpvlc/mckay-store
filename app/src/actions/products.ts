@@ -48,6 +48,7 @@ export async function createProduct(_prev: unknown, formData: FormData): Promise
     stock: formData.get('stock'),
     isActive: formData.get('isActive') === 'on' || formData.get('isActive') === 'true',
     sortOrder: formData.get('sortOrder') ?? 0,
+    categoryId: formData.get('categoryId') ?? '',
   });
 
   if (!parsed.success) {
@@ -75,6 +76,7 @@ export async function createProduct(_prev: unknown, formData: FormData): Promise
       stock: parsed.data.stock,
       isActive: parsed.data.isActive,
       sortOrder: parsed.data.sortOrder,
+      categoryId: parsed.data.categoryId || null,
       images,
     });
 
@@ -103,6 +105,7 @@ export async function updateProduct(
     stock: formData.get('stock'),
     isActive: formData.get('isActive') === 'on' || formData.get('isActive') === 'true',
     sortOrder: formData.get('sortOrder') ?? 0,
+    categoryId: formData.get('categoryId') ?? '',
   });
 
   if (!parsed.success) {
@@ -151,6 +154,7 @@ export async function updateProduct(
         stock: parsed.data.stock,
         isActive: parsed.data.isActive,
         sortOrder: parsed.data.sortOrder,
+        categoryId: parsed.data.categoryId || null,
         images,
       })
       .where(eq(products.id, productId));

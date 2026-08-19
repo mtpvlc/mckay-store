@@ -4,10 +4,10 @@ import { useActionState, useState } from 'react';
 import { createProduct, updateProduct } from '@/actions/products';
 import { centsToInput } from '@/lib/money';
 import { Alert, Field, SubmitButton, inputClass } from './ui';
-import type { Product } from '@/db/schema';
+import type { Category, Product } from '@/db/schema';
 import type { ActionResult } from '@/lib/validation';
 
-export function ProductForm({ product }: { product?: Product }) {
+export function ProductForm({ product, categories }: { product?: Product; categories: Category[] }) {
   const action = product ? updateProduct.bind(null, product.id) : createProduct;
   const [state, formAction] = useActionState<ActionResult | null, FormData>(action, null);
   const errors = state && !state.ok ? state.fieldErrors : undefined;
@@ -40,6 +40,17 @@ export function ProductForm({ product }: { product?: Product }) {
           defaultValue={product?.description ?? ''}
           className={inputClass}
         />
+      </Field>
+
+      <Field label="Category" name="categoryId" errors={errors} hint="Optional. Manage categories under Admin > Categories.">
+        <select name="categoryId" defaultValue={product?.categoryId ?? ''} className={inputClass}>
+          <option value="">No category</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="grid grid-cols-3 gap-4">

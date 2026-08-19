@@ -45,6 +45,7 @@ export const productSchema = z.object({
   stock: z.coerce.number().int().min(0).max(1_000_000),
   isActive: z.coerce.boolean(),
   sortOrder: z.coerce.number().int().min(0).max(100_000).default(0),
+  categoryId: z.string().uuid().optional().or(z.literal('')),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

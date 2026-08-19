@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { getAdminProduct, getPriceHistory } from '@/db/queries/products';
+import { listCategories } from '@/db/queries/categories';
 import { ProductForm } from '@/components/admin/ProductForm';
 import { softDeleteProduct } from '@/actions/products';
 import { formatPrice } from '@/lib/money';
@@ -13,6 +14,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   if (!product) notFound();
 
   const history = await getPriceHistory(id);
+  const categories = await listCategories();
 
   async function remove() {
     'use server';
@@ -23,7 +25,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     <>
       <h1 className="mb-6 text-lg font-semibold">{product.name}</h1>
 
-      <ProductForm product={product} />
+      <ProductForm product={product} categories={categories} />
 
       <section className="mt-10">
         <h2 className="mb-3 text-sm font-semibold">Price history</h2>

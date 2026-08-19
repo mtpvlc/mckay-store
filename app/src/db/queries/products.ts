@@ -9,11 +9,17 @@ import { products, priceHistory, type Product } from '@/db/schema';
  */
 const notDeleted = isNull(products.deletedAt);
 
-export async function listPublicProducts(): Promise<Product[]> {
+export async function listPublicProducts(categoryId?: string): Promise<Product[]> {
   return db
     .select()
     .from(products)
-    .where(and(notDeleted, eq(products.isActive, true)))
+    .where(
+      and(
+        notDeleted,
+        eq(products.isActive, true),
+        categoryId ? eq(products.categoryId, categoryId) : undefined,
+      ),
+    )
     .orderBy(asc(products.sortOrder), asc(products.name));
 }
 

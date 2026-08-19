@@ -1,12 +1,22 @@
+import Link from 'next/link';
 import { listPublicProducts } from '@/db/queries/products';
+import { getCategoryBySlug, listCategories } from '@/db/queries/categories';
 import { ProductCard } from '@/components/shop/ProductCard';
 
 // Rendered per request: the database is not reachable at build time on the
 // build host, and a live read keeps new products visible immediately.
 export const dynamic = 'force-dynamic';
 
-export default async function CataloguePage() {
-  const products = await listPublicProducts();
+export default async function CataloguePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category: categorySlug } = await searchParams;
+  const categories = await listCategories();
+  // An unknown slug silently falls back to "all" rather than 404ing.
+  const activeCategory = categorySlug ? await getCategoryBySlug(categorySlug) : null;
+  const products = await listPublicProducts(activeCategory?.id);
 
   return (
     <>
@@ -34,8 +44,23 @@ export default async function CataloguePage() {
 
       <section id="products" className="scroll-mt-8 pb-8">
         <h2 className="mb-6 text-xl font-semibold">Products</h2>
+        {categories.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            <CategoryChip href="/#products" label="All" active={!activeCategory} />
+            {categories.map((category) => (
+              <CategoryChip
+                key={category.id}
+                href={`/?category=${category.slug}#products`}
+                label={category.name}
+                active={activeCategory?.id === category.id}
+              />
+            ))}
+          </div>
+        )}
         {products.length === 0 ? (
-          <p className="text-sm text-ink-muted">Nothing listed yet.</p>
+          <p className="text-sm text-ink-muted">
+            {activeCategory ? 'Nothing in this category yet.' : 'Nothing listed yet.'}
+          </p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
@@ -45,5 +70,20 @@ export default async function CataloguePage() {
         )}
       </section>
     </>
+  );
+}
+
+function CategoryChip({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={
+        active
+          ? 'rounded-card bg-brand px-3 py-1.5 text-sm font-semibold text-white'
+          : 'rounded-card border border-line px-3 py-1.5 text-sm text-ink-muted hover:border-brand hover:text-brand'
+      }
+    >
+      {label}
+    </Link>
   );
 }
