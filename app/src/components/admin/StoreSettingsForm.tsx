@@ -10,11 +10,9 @@ type MethodField = { id: string; label: string; chain: string; token: string; ad
 export function StoreSettingsForm({
   methods,
   orderNotifyEmail,
-  envNotifyEmail,
 }: {
   methods: MethodField[];
   orderNotifyEmail: string;
-  envNotifyEmail: string;
 }) {
   const [state, formAction] = useActionState<ActionResult | null, FormData>(updateStoreSettings, null);
 
@@ -50,14 +48,14 @@ export function StoreSettingsForm({
         <Field
           label="New-order notification email"
           name="orderNotifyEmail"
-          hint={`Where "New order" emails are sent. Leave empty to use the server default (${envNotifyEmail}).`}
+          hint='Where "New order" emails are sent. Leave empty to use the server default.'
           errors={state && !state.ok ? state.fieldErrors : undefined}
         >
           <input
             name="orderNotifyEmail"
             type="email"
             defaultValue={orderNotifyEmail}
-            placeholder={envNotifyEmail}
+            placeholder="orders@example.com"
             className={inputClass}
           />
         </Field>

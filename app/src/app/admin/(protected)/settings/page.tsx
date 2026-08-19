@@ -23,7 +23,6 @@ export default async function AdminSettingsPage() {
       <StoreSettingsForm
         methods={methods}
         orderNotifyEmail={stored.get('order_notify_email') ?? ''}
-        envNotifyEmail={config.orderNotifyEmail}
       />
     </div>
   );

@@ -8,7 +8,11 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
     <div className="min-h-screen">
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-semibold">Shop</Link>
+          <Link href="/" className="flex items-center gap-3 font-semibold">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/mckay-logo.png" alt="" className="h-10 w-10 object-contain" />
+            McKay Shop
+          </Link>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/order" className="text-ink-muted hover:text-brand">Order</Link>
             {session ? (
