@@ -42,6 +42,7 @@ Then:
 - **Database** — PostgreSQL with Drizzle ORM; includes migrations
 - **EUR Pricing** — Prices stored as integer cents (49.99 → 4999)
 - **Order System** — Line items snapshot product state at purchase time
+- **Admin Settings** — Wallet receive address and notification email editable in the admin panel (Admin → Settings), no redeploy needed
 - **Email** — SMTP integration for order confirmations (configurable)
 - **Responsive Design** — Tailwind CSS, works on mobile and desktop
 

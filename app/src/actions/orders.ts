@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/db';
 import { orders, type LineItem } from '@/db/schema';
 import { getActiveProductsByIds } from '@/db/queries/products';
+import { getOrderNotifyEmail, getWalletAddress } from '@/db/queries/settings';
 import { requireAdmin, getCustomerSession } from '@/lib/auth';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit';
 import { getClientIp } from '@/lib/request';
@@ -104,6 +105,10 @@ export async function submitOrder(_prev: unknown, formData: FormData): Promise<A
   // 9. Attach the customer if signed in. Guest checkout stays supported.
   const session = await getCustomerSession();
 
+  // Snapshot the receive address at order time - changing it in settings later
+  // must not change where an already-placed order says to pay.
+  const payAddress = await getWalletAddress(method.id);
+
   // 8. Insert with a retry loop - generating the reference up front and hoping
   // for no collision fails under concurrency.
   const now = new Date();
@@ -125,6 +130,7 @@ export async function submitOrder(_prev: unknown, formData: FormData): Promise<A
         subtotalCents,
         paymentChain: method.chain,
         paymentToken: method.token,
+        payAddress,
       });
       reference = candidate;
       break;
@@ -146,12 +152,14 @@ export async function submitOrder(_prev: unknown, formData: FormData): Promise<A
     notes: parsed.data.notes || null,
     status: 'new',
     paymentMethodLabel: method.label,
+    payAddress,
     lineItems,
     subtotalCents,
     currency: config.storeCurrency,
   };
 
-  await sendQuietly(orderNotificationInternal(mailData));
+  const notifyTo = await getOrderNotifyEmail();
+  await sendQuietly({ ...orderNotificationInternal(mailData), to: notifyTo });
   await sendQuietly(orderConfirmationCustomer(mailData));
 
   revalidatePath('/admin/orders');

@@ -22,6 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span className="font-semibold">Admin</span>
             <Link href="/admin/products" className="text-ink-muted hover:text-brand">Products</Link>
             <Link href="/admin/orders" className="text-ink-muted hover:text-brand">Orders</Link>
+            <Link href="/admin/settings" className="text-ink-muted hover:text-brand">Settings</Link>
           </nav>
           <form action={logoutAdmin} className="flex items-center gap-4">
             <span className="text-xs text-ink-faint">{session.email}</span>

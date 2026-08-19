@@ -4,9 +4,11 @@ Next.js storefront with an admin panel for managing products, prices and orders.
 
 - **Stack:** Next.js 15 (App Router), TypeScript, Tailwind, Postgres via Drizzle ORM
 - **Currency:** EUR only. Prices are stored as integers in cents (49.99 becomes 4999).
-- **Payments:** not implemented. The order form records a chosen payment method
-  and the schema has nullable columns ready for on-chain detection, but nothing
-  in this build touches a chain.
+- **Payments:** manual crypto payments. The admin sets a receive address per
+  payment method under Admin → Settings; customers see it (with the amount and
+  order reference) on the confirmation page and in the confirmation email. The
+  address is snapshotted onto each order at submit time. Nothing in this build
+  watches the chain - marking an order paid is a manual admin step.
 
 ---
 

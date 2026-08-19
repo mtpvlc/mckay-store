@@ -22,6 +22,7 @@ type OrderMailData = {
   notes?: string | null;
   status?: string;
   paymentMethodLabel: string;
+  payAddress?: string | null;
   lineItems: LineItem[];
   subtotalCents: number;
   currency: string;
@@ -106,7 +107,15 @@ export function orderConfirmationCustomer(data: OrderMailData): Mail {
     `Delivery address: ${data.addressRaw}`,
     `Payment method:   ${data.paymentMethodLabel}`,
     '',
-    'We will be in touch with payment instructions shortly.',
+    data.payAddress
+      ? [
+          `Please send ${formatPrice(data.subtotalCents, data.currency)} (${data.paymentMethodLabel}) to:`,
+          '',
+          `  ${data.payAddress}`,
+          '',
+          `Include your order reference ${data.reference} if the wallet supports a note.`,
+        ].join('\n')
+      : 'We will be in touch with payment instructions shortly.',
   ].join('\n');
 
   const html = `<div style="font-family:sans-serif;font-size:14px;color:#111827">
@@ -116,7 +125,15 @@ export function orderConfirmationCustomer(data: OrderMailData): Mail {
     <p style="margin:16px 0 0"><strong>Total: ${formatPrice(data.subtotalCents, data.currency)}</strong></p>
     <p style="margin:16px 0 4px"><strong>Delivery address:</strong> ${esc(data.addressRaw)}</p>
     <p style="margin:0 0 16px"><strong>Payment method:</strong> ${esc(data.paymentMethodLabel)}</p>
-    <p style="margin:0">We will be in touch with payment instructions shortly.</p>
+    ${
+      data.payAddress
+        ? `<div style="margin:0;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;background:#f9fafb">
+            <p style="margin:0 0 8px">Please send <strong>${formatPrice(data.subtotalCents, data.currency)}</strong> (${esc(data.paymentMethodLabel)}) to:</p>
+            <p style="margin:0 0 8px;font-family:monospace;font-size:13px;word-break:break-all"><strong>${esc(data.payAddress)}</strong></p>
+            <p style="margin:0;font-size:12px;color:#6b7280">Include your order reference ${esc(data.reference)} if the wallet supports a note.</p>
+          </div>`
+        : `<p style="margin:0">We will be in touch with payment instructions shortly.</p>`
+    }
   </div>`;
 
   return { to: data.email, subject: `Your order ${data.reference}`, text, html };

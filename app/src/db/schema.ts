@@ -189,6 +189,20 @@ export const paymentEvents = pgTable(
   ],
 );
 
+/**
+ * Key-value store for admin-editable settings (wallet addresses, notify email).
+ * Values here override the .env defaults so the shop can be handed to a new
+ * owner without touching config files.
+ */
+export const settings = pgTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
 export type LineItem = {
   productId: string;
   nameSnapshot: string;
